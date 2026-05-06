@@ -1,4 +1,5 @@
 import random
+##TODO: REMOVE CONFIG IMPORTS FROM MODEL AND CONTROLLER IF EXISTS
 from config import LEARNING_RATE
 
 class Perceptron:
