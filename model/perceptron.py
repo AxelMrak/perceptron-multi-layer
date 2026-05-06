@@ -56,8 +56,4 @@ class Perceptron:
 
     @property
     def bias(self) -> float:
-            """
-    Bias is the first weight (w0) which acts as the threshold in the activation function.
-    By convention, we can treat it as the bias term. It allows the decision boundary to  shift away from the origin.
-    """
         return self._weights[0]
