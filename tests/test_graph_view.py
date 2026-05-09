@@ -1,5 +1,3 @@
-"""Tests for GraphView — the passive matplotlib decision-boundary viewer."""
-
 import matplotlib
 
 matplotlib.use("Agg")
@@ -9,10 +7,20 @@ import tkinter as tk
 import pytest
 from view.graph_view import GraphView
 
+try:
+    _root = tk.Tk()
+    _root.withdraw()
+    _root.destroy()
+    _HAS_DISPLAY = True
+except tk.TclError:
+    _HAS_DISPLAY = False
+
 
 @pytest.fixture
 def gv():
     """Create a GraphView with a hidden tkinter root window."""
+    if not _HAS_DISPLAY:
+        pytest.skip("No display available")
     root = tk.Tk()
     root.withdraw()
     view = GraphView(root)
@@ -20,6 +28,7 @@ def gv():
     root.destroy()
 
 
+@pytest.mark.skipif(not _HAS_DISPLAY, reason="No display available")
 class TestInit:
     def test_figure_and_axes_created(self, gv):
         assert gv._figure is not None
@@ -33,6 +42,7 @@ class TestInit:
         assert len(gv._axes.lines) == 4
 
 
+@pytest.mark.skipif(not _HAS_DISPLAY, reason="No display available")
 class TestPlotDecisionBoundary:
     def test_adds_one_line_to_axes(self, gv):
         n_before = len(gv._axes.lines)
@@ -40,6 +50,7 @@ class TestPlotDecisionBoundary:
         assert len(gv._axes.lines) == n_before + 1
 
 
+@pytest.mark.skipif(not _HAS_DISPLAY, reason="No display available")
 class TestPlotDecisionBoundaryLabel:
     def test_line_has_correct_epoch_label(self, gv):
         gv.plot_decision_boundary(0.0, 1.0, 1.0, epoch=5)
@@ -47,6 +58,7 @@ class TestPlotDecisionBoundaryLabel:
         assert new_line.get_label() == "Epoch 5"
 
 
+@pytest.mark.skipif(not _HAS_DISPLAY, reason="No display available")
 class TestClear:
     def test_removes_decision_line_leaves_points(self, gv):
         gv.plot_decision_boundary(0.0, 1.0, 1.0, epoch=1)
@@ -58,6 +70,7 @@ class TestClear:
         gv.clear()
         colors = {line.get_color() for line in gv._axes.lines}
         assert colors == {"red", "green", "yellow", "blue"}
+
 
 class TestClassConstants:
     def test_figure_size(self):
