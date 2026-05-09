@@ -6,14 +6,26 @@ import pytest
 
 from view.tkinter_view import TkinterView
 
+try:
+    _root = tk.Tk()
+    _root.withdraw()
+    _root.destroy()
+    _HAS_DISPLAY = True
+except tk.TclError:
+    _HAS_DISPLAY = False
+
 
 @pytest.fixture(scope="module")
 def tk_window():
+    """Create a top-level tkinter window. Skips if no display."""
+    if not _HAS_DISPLAY:
+        pytest.skip("No display available")
     window = tk.Tk()
     yield window
     window.destroy()
 
 
+@pytest.mark.skipif(not _HAS_DISPLAY, reason="No display available")
 class TestInit:
     def test_label_attributes(self, tk_window):
         view = TkinterView(tk_window)
@@ -42,6 +54,7 @@ class TestInit:
         assert isinstance(view.test_button, ttk.Button)
 
 
+@pytest.mark.skipif(not _HAS_DISPLAY, reason="No display available")
 class TestUpdateTrainingDisplay:
     def test_shows_epoch_when_not_converged(self, tk_window):
         view = TkinterView(tk_window)
@@ -74,6 +87,7 @@ class TestUpdateTrainingDisplay:
         assert view.input2_label.cget("text") == "Input 2: 1"
 
 
+@pytest.mark.skipif(not _HAS_DISPLAY, reason="No display available")
 class TestUpdateTestResult:
     def test_updates_result_label(self, tk_window):
         view = TkinterView(tk_window)
@@ -87,6 +101,7 @@ class TestUpdateTestResult:
         assert view.test_result_label.cget("text") == "second"
 
 
+@pytest.mark.skipif(not _HAS_DISPLAY, reason="No display available")
 class TestShowError:
     def test_calls_showerror_with_correct_args(self, tk_window):
         view = TkinterView(tk_window)
@@ -95,6 +110,7 @@ class TestShowError:
         mock.assert_called_once_with("Error", "Something went wrong")
 
 
+@pytest.mark.skipif(not _HAS_DISPLAY, reason="No display available")
 class TestShowInfo:
     def test_calls_showinfo_with_correct_args(self, tk_window):
         view = TkinterView(tk_window)
@@ -103,6 +119,7 @@ class TestShowInfo:
         mock.assert_called_once_with("Info", "Training complete")
 
 
+@pytest.mark.skipif(not _HAS_DISPLAY, reason="No display available")
 class TestEntryWidgets:
     def test_insert_and_get(self, tk_window):
         view = TkinterView(tk_window)
