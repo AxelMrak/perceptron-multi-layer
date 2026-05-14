@@ -1,12 +1,13 @@
 import pytest
 from model.perceptron import Perceptron
+from model.activation import StepActivation
+from model.dataset import LogicGateDataset
 from controller.trainer import TrainerController
-from config import AND_INPUTS, AND_OUTPUTS
 
 
 def _make_controller(max_epochs=100):
-    p = Perceptron(input_size=3, learning_rate=0.6)
-    return TrainerController(p, AND_INPUTS, AND_OUTPUTS, max_epochs=max_epochs)
+    p = Perceptron(input_size=3, activation=StepActivation(), learning_rate=0.6)
+    return TrainerController(p, LogicGateDataset.and_gate(), max_epochs=max_epochs)
 
 
 class TestInit:
@@ -23,8 +24,8 @@ class TestInit:
         assert c.current_error == 0.0
 
     def test_perceptron_property_returns_same_object(self):
-        p = Perceptron(input_size=3, learning_rate=0.6)
-        c = TrainerController(p, AND_INPUTS, AND_OUTPUTS)
+        p = Perceptron(input_size=3, activation=StepActivation(), learning_rate=0.6)
+        c = TrainerController(p, LogicGateDataset.and_gate())
         assert c.perceptron is p
 
 
@@ -51,16 +52,16 @@ class TestTrainEpoch:
         assert c.converged is True
 
     def test_returns_false_when_errors_exist(self):
-        p = Perceptron(input_size=3, learning_rate=0.6)
+        p = Perceptron(input_size=3, activation=StepActivation(), learning_rate=0.6)
         p.weights = [0.0, 0.0, 0.0]
-        c = TrainerController(p, AND_INPUTS, AND_OUTPUTS)
+        c = TrainerController(p, LogicGateDataset.and_gate())
         result = c.train_epoch()
         assert result is False
 
     def test_returns_true_when_no_errors(self):
-        p = Perceptron(input_size=3, learning_rate=0.6)
+        p = Perceptron(input_size=3, activation=StepActivation(), learning_rate=0.6)
         p.weights = [-1.0, 1.0, 1.0]
-        c = TrainerController(p, AND_INPUTS, AND_OUTPUTS)
+        c = TrainerController(p, LogicGateDataset.and_gate())
         result = c.train_epoch()
         assert result is True
         assert c.converged is True

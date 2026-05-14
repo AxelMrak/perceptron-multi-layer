@@ -1,7 +1,9 @@
 import tkinter as tk
 
-from config import AND_INPUTS, AND_OUTPUTS, LEARNING_RATE
+from config import LEARNING_RATE
 from model.perceptron import Perceptron
+from model.activation import StepActivation
+from model.dataset import LogicGateDataset
 from controller.trainer import TrainerController
 from view.tkinter_view import TkinterView
 from view.graph_view import GraphView
@@ -15,11 +17,10 @@ def main() -> None:
 
     #    3 inputs: bias (always 1.0) + x1 + x2
     #    Learning rate from config.py (only main.py touches config)
-    perceptron = Perceptron(input_size=3, learning_rate=LEARNING_RATE)
+    perceptron = Perceptron(input_size=3, activation=StepActivation(), learning_rate=LEARNING_RATE)
 
-    controller = TrainerController(
-        perceptron, AND_INPUTS, AND_OUTPUTS
-    )
+    dataset = LogicGateDataset.and_gate()
+    controller = TrainerController(perceptron, dataset)
 
 
     def on_train() -> None:

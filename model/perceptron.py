@@ -1,14 +1,14 @@
 import random
-##TODO: REMOVE CONFIG IMPORTS FROM MODEL AND CONTROLLER IF EXISTS
-from config import LEARNING_RATE
+from model.activation import ActivationFunction
 
 class Perceptron:
-    """Single-layer perceptron with step activation function."""
-    def __init__(self, input_size: int, learning_rate: float) -> None:
+    """Single-layer perceptron."""
+    def __init__(self, input_size: int, activation: ActivationFunction, learning_rate: float) -> None:
         if input_size < 1:
             raise ValueError(f"Input size must be at least 1, got {input_size}")
 
         self._weights = [random.random() for _ in range(input_size)]
+        self._activation = activation
         self._learning_rate = learning_rate
 
     #   Public API
@@ -23,17 +23,9 @@ class Perceptron:
 
         return sum(w * x for w, x in zip(self._weights, inputs))
 
-    """
-        Step (threshold) activation function:
-        output = 1 if weighted_sum > 0 else -1
-    """
-    def activate(self, raw_output: float) -> float:
-        return 1.0 if raw_output > 0 else -1.0
-
-
     def predict(self, inputs: list[float]) -> float:
         """Full forward pass: compute + activate."""
-        return self.activate(self.compute(inputs))
+        return self._activation.compute(self.compute(inputs))
 
 
     """ Update weights based on error and inputs using the learning rule:
