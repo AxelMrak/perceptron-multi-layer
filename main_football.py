@@ -35,6 +35,18 @@ def main() -> None:
     print(f"Training {'converged' if converged else 'did not converge'} after {epochs} epochs")
     print(f"Final MSE: {controller._current_error:.6f}")
 
+    print("\n--- Predictions per match ---")
+    print(f"{'Expected':>10}  {'Predicted':>10}  {'Result':>12}")
+    for sample in dataset:
+        pred = controller.predict_network(network, sample.inputs)
+        if pred > 0.5:
+            result = "Home Win"
+        elif pred < -0.5:
+            result = "Away Win"
+        else:
+            result = "Draw"
+        print(f"{sample.expected:>10.1f}  {pred:>10.4f}  {result:>12}")
+
 
 if __name__ == "__main__":
     main()
