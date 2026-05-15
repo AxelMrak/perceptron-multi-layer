@@ -44,4 +44,4 @@ class TestLayerBackward:
         layer = Layer(2, 3, SigmoidActivation(), 0.5)
         layer.forward([1.0, 0.5, -0.3])
         prev_errors = layer.backward([0.1, -0.1])
-        assert len(prev_errors) == 3
+        assert len(prev_errors) == 2

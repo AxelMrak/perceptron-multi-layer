@@ -26,6 +26,21 @@ class StepActivation(ActivationFunction):
         return 0.0
 
 
+class TanhActivation(ActivationFunction):
+    """Hyperbolic tangent: output range (-1, 1). Suitable for targets in [-1, 1]."""
+
+    def compute(self, x: float) -> float:
+        if x < -700:
+            return -1.0
+        if x > 700:
+            return 1.0
+        return math.tanh(x)
+
+    def derivative(self, x: float) -> float:
+        tx = self.compute(x)
+        return 1.0 - tx * tx
+
+
 class SigmoidActivation(ActivationFunction):
     """Sigmoid activation: 1 / (1 + e^(-x)). Output range: (0, 1)."""
 

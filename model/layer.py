@@ -71,7 +71,7 @@ class Layer:
 
         prev_errors = [
             sum(self._weights[i][j] * deltas[i] for i in range(len(self._weights)))
-            for j in range(self._num_inputs)
+            for j in range(1, self._num_inputs)
         ]
 
         return prev_errors

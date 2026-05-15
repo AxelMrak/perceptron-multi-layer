@@ -16,7 +16,9 @@ class Network:
     def forward(self, inputs: list[float]) -> list[float]:
         """Pass inputs through all layers, return last layer output."""
         current = inputs
-        for layer in self._layers:
+        for i, layer in enumerate(self._layers):
+            if i > 0:
+                current = [1.0] + current
             current = layer.forward(current)
         return current
 
