@@ -1,4 +1,5 @@
 from model.perceptron import Perceptron
+from model.dataset import Dataset
 
 
 class TrainerController:
@@ -12,19 +13,17 @@ class TrainerController:
     def __init__(
         self,
         perceptron: Perceptron,
-        samples_inputs: list[list[float]],
-        samples_outputs: list[float],
+        dataset: Dataset,
         max_epochs: int = 100,
     ) -> None:
         """
         Args:
-            perceptron: The model to train .
-            samples_inputs: Training inputs (e.g., AND truth table).
-            samples_outputs: Expected outputs for each sample.
+            perceptron: The model to train.
+            dataset: Training samples (e.g., AND truth table).
             max_epochs: Safety limit to prevent infinite loops.
         """
         self._perceptron = perceptron
-        self._samples = list(zip(samples_inputs, samples_outputs))
+        self._dataset = dataset
         self._max_epochs = max_epochs
 
         # State tracking for UI
@@ -86,14 +85,14 @@ class TrainerController:
         """
         self._converged = True
 
-        for inputs, expected in self._samples:
-            self._current_sample_input = inputs
-            self._current_sample_expected = expected
-            self._current_sample_predicted = self._perceptron.predict(inputs)
-            self._current_error = expected - self._current_sample_predicted
+        for sample in self._dataset:
+            self._current_sample_input = sample.inputs
+            self._current_sample_expected = sample.expected
+            self._current_sample_predicted = self._perceptron.predict(sample.inputs)
+            self._current_error = sample.expected - self._current_sample_predicted
 
             if self._current_error != 0.0:
-                self._perceptron.update_weights(self._current_error, inputs)
+                self._perceptron.update_weights(self._current_error, sample.inputs)
                 self._converged = False
 
         # Increment epoch count after processing all samples
@@ -131,3 +130,44 @@ class TrainerController:
             [1.0, int(input1_str), int(input2_str)]
         )
         return f"Result: {result} (AND is {'True' if result == 1.0 else 'False'})"
+
+    #  MULTI-LAYER TRAINING
+
+    def train_backprop(
+        self,
+        network,
+        dataset: Dataset,
+        max_epochs: int = 1000,
+        target_error: float = 0.01,
+    ) -> tuple[bool, int]:
+        """
+        Train a multi-layer network using backpropagation.
+
+        Runs epochs until MSE < target_error or max_epochs is reached.
+
+        Returns:
+            (converged, epochs): whether it converged and how many epochs it took.
+        """
+        for epoch in range(1, max_epochs + 1):
+            total_error = 0.0
+
+            for sample in dataset:
+                predicted = network.train_sample(sample.inputs, [sample.expected])
+                error = sample.expected - predicted[0]
+                total_error += error * error
+
+            mse = total_error / len(dataset)
+            self._current_epoch = epoch
+            self._current_error = mse
+
+            if mse < target_error:
+                self._converged = True
+                return True, epoch
+
+        self._converged = False
+        return False, max_epochs
+
+    def predict_network(self, network, inputs: list[float]) -> float:
+        """Predict using a multi-layer network (single output neuron)."""
+        outputs = network.forward(inputs)
+        return outputs[0]

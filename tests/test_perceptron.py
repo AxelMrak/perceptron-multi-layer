@@ -1,9 +1,10 @@
 import pytest
 from model.perceptron import Perceptron
+from model.activation import StepActivation
 
 
 def _make_perceptron(input_size=3, learning_rate=0.6):
-    return Perceptron(input_size=input_size, learning_rate=learning_rate)
+    return Perceptron(input_size=input_size, activation=StepActivation(), learning_rate=learning_rate)
 
 
 class TestCompute:
@@ -21,17 +22,6 @@ class TestCompute:
         p = _make_perceptron(input_size=3)
         with pytest.raises(ValueError, match="Expected 3 inputs"):
             p.compute([1.0, 2.0])
-
-
-class TestActivate:
-    def test_positive(self):
-        assert _make_perceptron().activate(0.5) == 1.0
-
-    def test_zero(self):
-        assert _make_perceptron().activate(0.0) == -1.0
-
-    def test_negative(self):
-        assert _make_perceptron().activate(-0.5) == -1.0
 
 
 class TestPredict:
@@ -89,18 +79,18 @@ class TestWeightsProperty:
 class TestInitValidation:
     def test_input_size_zero_raises(self):
         with pytest.raises(ValueError, match="at least 1"):
-            Perceptron(input_size=0, learning_rate=0.6)
+            Perceptron(input_size=0, activation=StepActivation(), learning_rate=0.6)
 
     def test_input_size_negative_raises(self):
         with pytest.raises(ValueError, match="at least 1"):
-            Perceptron(input_size=-1, learning_rate=0.6)
+            Perceptron(input_size=-1, activation=StepActivation(), learning_rate=0.6)
 
     def test_input_size_one_works(self):
-        p = Perceptron(input_size=1, learning_rate=0.6)
+        p = Perceptron(input_size=1, activation=StepActivation(), learning_rate=0.6)
         assert len(p.weights) == 1
 
     def test_larger_input_size_works(self):
-        p = Perceptron(input_size=5, learning_rate=0.6)
+        p = Perceptron(input_size=5, activation=StepActivation(), learning_rate=0.6)
         assert len(p.weights) == 5
 
 
